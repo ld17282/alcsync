@@ -354,6 +354,8 @@ export default function Dashboard() {
   const [alertLogs, setAlertLogs] = useState<AlertLog[]>([])
   const alertTriggerScoreRef = useRef<number>(0)
   const alertTriggerTimeRef = useRef<string>("")
+  const spikesFiredRef = useRef<{ spike1: boolean; spike2: boolean }>({ spike1: false, spike2: false })
+  const spikeOffsetRef = useRef<number>(0)
 
   // Simulation core — increment bac, check thresholds
   function tick(bacRef: React.MutableRefObject<number>) {
@@ -362,7 +364,22 @@ export default function Dashboard() {
     const increment = endBac / totalSteps
 
     stepRef.current++
-    const next = Math.round((increment * stepRef.current) * 1000) / 1000
+    let next = Math.round((increment * stepRef.current + spikeOffsetRef.current) * 1000) / 1000
+
+    const scoreBefore = toZoneScore(next)
+
+    if (!spikesFiredRef.current.spike1 && scoreBefore >= 23) {
+      spikesFiredRef.current.spike1 = true
+      const spikeAmt = ZONE_MAX_BAC * 0.08
+      spikeOffsetRef.current += spikeAmt
+      next = Math.round((next + spikeAmt) * 1000) / 1000
+    } else if (!spikesFiredRef.current.spike2 && scoreBefore >= 62) {
+      spikesFiredRef.current.spike2 = true
+      const spikeAmt = ZONE_MAX_BAC * 0.07
+      spikeOffsetRef.current += spikeAmt
+      next = Math.round((next + spikeAmt) * 1000) / 1000
+    }
+
     setBac(next)
     bacRef.current = next
 
@@ -398,6 +415,8 @@ export default function Dashboard() {
     setBac(0)
     stepRef.current = 0
     alertsFiredRef.current = new Set()
+    spikesFiredRef.current = { spike1: false, spike2: false }
+    spikeOffsetRef.current = 0
     setSimulating(true)
     const bacRef = { current: 0 }
     startInterval(bacRef)
