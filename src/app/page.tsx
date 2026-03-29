@@ -657,13 +657,11 @@ export default function Dashboard() {
             onClick={() => setActiveTab("alerts")}
             className="flex flex-col items-center gap-1 transition-colors relative cursor-pointer"
           >
-            <img src="/assets/alert-icon.svg" alt="alerts" className="h-6 w-6" loading="eager" fetchPriority="high"
-              style={{
-                filter: activeTab === "alerts"
-                  ? 'brightness(0) saturate(100%) invert(73%) sepia(98%) saturate(700%) hue-rotate(5deg) brightness(105%) contrast(102%)'
-                  : 'brightness(0) invert(1)',
-                opacity: activeTab === "alerts" ? 1 : alertLogs.length > 0 ? 0.8 : 0.3
-              }} />
+            <svg width="24" height="24" viewBox="0 0 401 435" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="alerts"
+              style={{ opacity: activeTab === "alerts" ? 1 : alertLogs.length > 0 ? 0.8 : 0.3 }}>
+              <path d="M192.307 0.174721C225.243 -1.33788 255.654 6.96801 283.111 25.2001C293.011 31.7759 302.594 40.9399 310.531 49.723C335.808 77.7329 350.335 114.599 350.726 152.341C350.919 171.07 350.071 187.519 356.825 205.378C362.459 220.288 371.57 232.061 379.854 245.513C383.424 251.309 386.615 256.822 390.85 262.235C405.3 284.263 404.476 315.605 387.382 335.863C371.434 354.759 353.231 358.188 330.442 363.322C300.868 370.141 270.801 374.612 240.525 376.701C229.986 377.387 219.433 377.827 208.873 378.023C163.45 378.651 118.11 373.945 73.7838 364C56.3134 360.117 34.9807 356.094 21.4698 344.027C8.36351 332.322 1.48078 319.662 0.202851 301.85C-0.861005 287.019 2.22782 274.417 10.2232 261.899C11.9472 259.054 14.6723 256.42 16.2848 253.547C25.721 236.726 38.3003 222.038 44.6981 203.666C50.7052 186.416 50.1375 170.55 50.2413 152.605C50.489 109.682 69.3605 67.6813 101.15 38.8798C103.781 36.4947 106.163 33.7631 109 31.5652C133.75 12.3887 161.209 2.23516 192.307 0.174721Z" fill={activeTab === "alerts" ? "#FFBB00" : "rgba(255,255,255,1)"}/>
+              <path d="M119.537 395.602C122.868 395.362 130.905 396.666 134.523 397.114C176.201 402.259 218.14 402.731 259.868 397.808C262.671 397.477 280.196 395.365 281.382 395.774L281.52 396.191C279.296 397.761 277.818 400.332 275.956 402.296C272.418 406.027 268.968 409.628 264.791 412.639C249.612 425.638 229.524 432.446 209.84 434.31C182.126 436.939 154.516 428.318 133.222 410.381C130.309 407.941 127.567 405.125 124.965 402.356C123.118 400.389 121.608 397.748 119.473 396.124L119.537 395.602Z" fill={activeTab === "alerts" ? "#FFBB00" : "rgba(255,255,255,1)"}/>
+            </svg>
             {alertLogs.length > 0 && activeTab !== "alerts" && (
               <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-[#ef4444] flex items-center justify-center text-[9px] font-bold text-white">
                 {alertLogs.length}
