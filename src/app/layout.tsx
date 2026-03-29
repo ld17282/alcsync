@@ -34,6 +34,9 @@ export default function RootLayout({
         <meta name="mobile-web-app-capable" content="yes" />
         <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
         <link rel="preload" href="/assets/buzzd-logo.svg" as="image" type="image/svg+xml" />
+        <link rel="preload" href="/assets/home - icon.svg" as="image" type="image/svg+xml" />
+        <link rel="preload" href="/assets/alert - icon.svg" as="image" type="image/svg+xml" />
+        <link rel="preload" href="/assets/pictorial - mark - white.svg" as="image" type="image/svg+xml" />
       </head>
       <body className="min-h-screen bg-black m-0 p-0 font-righteous" suppressHydrationWarning>
         <div className="min-h-screen flex justify-center bg-black">
