@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect, useRef } from "react"
-import { Home, Bell, Moon, Loader2 } from "lucide-react"
+import { Home, Bell, Moon, Loader2, Smile, Meh, Frown, AlertTriangle } from "lucide-react"
 
 const RADIUS = 90
 const CIRCUMFERENCE = 2 * Math.PI * RADIUS
@@ -21,27 +21,34 @@ const HEALTH_STATS = [
 
 function getBacColor(bac: number): string {
   if (bac <= 0.04) return "#22c55e"
-  if (bac <= 0.07) return "#eab308"
-  if (bac <= 0.09) return "#f97316"
+  if (bac <= 0.06) return "#eab308"
+  if (bac < ZONE_MAX_BAC) return "#f97316"
   return "#ef4444"
 }
 
 function getBacStatus(bac: number): string {
-  if (bac <= 0.04) return "Just right... Stop here!"
-  if (bac <= 0.07) return "Feeling it... Slow down"
-  if (bac < ZONE_MAX_BAC) return "Getting risky... Stop now"
-  return "Way over it... Get help"
+  if (bac <= 0.04) return "Feeling good"
+  if (bac <= 0.06) return "Take it easy"
+  if (bac < ZONE_MAX_BAC) return "Slow down"
+  return "Time to stop"
 }
 
-function getZoneEmoji(bac: number): string {
-  if (bac <= 0.04) return "😊"
-  if (bac <= 0.07) return "😐"
-  if (bac < ZONE_MAX_BAC) return "😟"
-  return "😵"
+function getZoneIcon(bac: number, size: number) {
+  if (bac <= 0.04) return <Smile size={size} strokeWidth={1.5} color="#22c55e" />
+  if (bac <= 0.06) return <Meh size={size} strokeWidth={1.5} color="#eab308" />
+  if (bac < ZONE_MAX_BAC) return <Frown size={size} strokeWidth={1.5} color="#f97316" />
+  return <AlertTriangle size={size} strokeWidth={1.5} color="#ef4444" />
 }
 
 function toZoneScore(bac: number): number {
   return Math.round((bac / ZONE_MAX_BAC) * 100)
+}
+
+function getZoneNumber(score: number): number {
+  if (score <= 50) return 1
+  if (score <= 75) return 2
+  if (score < 100) return 3
+  return 4
 }
 
 function getDateHeader(): string {
@@ -52,19 +59,56 @@ function getDateHeader(): string {
   return `${day}  ·  ${month} ${date}`
 }
 
+const ICON_SIZE_BREAKPOINTS: [number, number][] = [
+  [360, 88],
+  [375, 92],
+  [390, 100],
+  [414, 108],
+  [430, 116],
+]
+
+function interpolateIconSize(w: number): number {
+  if (w <= ICON_SIZE_BREAKPOINTS[0][0]) return ICON_SIZE_BREAKPOINTS[0][1]
+  const last = ICON_SIZE_BREAKPOINTS[ICON_SIZE_BREAKPOINTS.length - 1]
+  if (w >= last[0]) return last[1]
+  for (let i = 0; i < ICON_SIZE_BREAKPOINTS.length - 1; i++) {
+    const [x0, y0] = ICON_SIZE_BREAKPOINTS[i]
+    const [x1, y1] = ICON_SIZE_BREAKPOINTS[i + 1]
+    if (w >= x0 && w <= x1) {
+      return Math.round(y0 + ((w - x0) / (x1 - x0)) * (y1 - y0))
+    }
+  }
+  return 100
+}
+
+function useZoneIconSize(): number {
+  const [size, setSize] = useState(100)
+  useEffect(() => {
+    function calc() {
+      setSize(interpolateIconSize(window.innerWidth))
+    }
+    calc()
+    window.addEventListener("resize", calc)
+    return () => window.removeEventListener("resize", calc)
+  }, [])
+  return size
+}
+
 export default function Dashboard() {
-  const [bac, setBac] = useState(0.04)
+  const [bac, setBac] = useState(0)
   const [simulating, setSimulating] = useState(false)
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
+  const iconSize = useZoneIconSize()
 
   function simulateNight() {
     if (simulating) return
+    setBac(0)
     setSimulating(true)
 
-    const startBac = 0.04
-    const endBac = 0.12
-    const totalSteps = 100
-    const stepDuration = 5000 / totalSteps
+    const startBac = 0
+    const endBac = 0.12       // 150% zone score
+    const totalSteps = 450    // 450 steps × 200ms = 90 seconds
+    const stepDuration = 200
     const increment = (endBac - startBac) / totalSteps
     let step = 0
 
@@ -88,7 +132,6 @@ export default function Dashboard() {
   const [showIntegrations, setShowIntegrations] = useState(false)
   const color     = getBacColor(bac)
   const status    = getBacStatus(bac)
-  const emoji     = getZoneEmoji(bac)
   const isOverLimit = bac > ZONE_MAX_BAC
   const zoneScore = toZoneScore(bac)
   const dashOffset = CIRCUMFERENCE * (1 - Math.min(bac / ZONE_MAX_BAC, 1))
@@ -106,23 +149,20 @@ export default function Dashboard() {
 
       {/* Top Bar */}
       <div className="flex items-center justify-between px-4 sm:px-6 pt-8 sm:pt-10 pb-4">
-        <div className="flex items-center gap-2">
-          <Moon className="w-5 h-5 sm:w-6 sm:h-6" color="#FFBB00" />
-          <span className="text-xl sm:text-2xl font-bold tracking-tight text-white">buzzd</span>
-        </div>
+        <img src="/assets/buzzd-logo.svg" alt="buzzd" className="h-5 w-auto sm:h-6 md:h-7" />
         <div
           className="flex items-center gap-1.5 bg-white/5 backdrop-blur-sm border border-white/10 rounded-full px-3 sm:px-4 py-1 sm:py-2 cursor-pointer"
           onClick={() => { setShowIntegrations(true); console.log("integrations") }}
         >
           <span className="size-2 rounded-full animate-pulse" style={{ backgroundColor: deviceConnected ? "#22c55e" : "#ef4444" }} />
-          <span className="text-xs sm:text-sm text-white/70 font-medium">
+          <span className="text-xs sm:text-sm text-white/70 font-medium" style={{ fontFamily: 'Aeonik, sans-serif' }}>
             {deviceConnected ? "Devices Connected" : "Devices Disconnected"}
           </span>
         </div>
       </div>
 
       {/* Date Header */}
-      <p className="px-4 sm:px-6 pt-1 pb-3 text-sm sm:text-base text-white/50 font-medium">
+      <p className="font-aeonik px-4 sm:px-6 pt-1 pb-3 text-sm sm:text-base text-white/50 font-medium" style={{ fontFamily: 'Aeonik, sans-serif' }}>
         {getDateHeader()}
       </p>
 
@@ -131,7 +171,7 @@ export default function Dashboard() {
 
         {/* Zone Gauge section */}
         <div className="flex flex-col items-center px-4 sm:px-6 pt-2 pb-6">
-          <p className="text-2xl sm:text-3xl font-bold tracking-widest uppercase text-white/80 text-center mb-8 sm:mb-10">
+          <p className="font-righteous text-2xl sm:text-3xl font-bold tracking-widest uppercase text-center mb-8 sm:mb-10" style={{ color: '#FFBB00' }}>
             Your Zone
           </p>
 
@@ -187,28 +227,29 @@ export default function Dashboard() {
               />
             </svg>
 
-            {/* Center: emoji only */}
+            {/* Center: zone icon */}
             <div className="absolute inset-0 flex items-center justify-center">
-              <span style={{ fontSize: 'clamp(5rem, 25vw, 9rem)', lineHeight: 1 }}>
-                {getZoneEmoji(bac)}
-              </span>
+              {getZoneIcon(bac, iconSize)}
             </div>
           </div>
 
-          {/* Status pills below the ring */}
-          <div className="flex flex-row gap-2 justify-center mt-6 sm:mt-10">
-            <div className="bg-white/5 border border-white/20 rounded-full px-4 py-2">
-              <span className="text-sm sm:text-base font-medium text-white/70">{zoneScore}%</span>
-            </div>
-            <div className="bg-white/5 border border-white/20 rounded-full px-4 py-2">
-              <span className="text-sm sm:text-base font-medium text-white/70">{status}</span>
-            </div>
+          {/* Zone label + status below the ring */}
+          <div className="flex flex-col items-center gap-1 mt-6 sm:mt-10">
+            <span
+              className="font-righteous text-lg sm:text-xl font-bold tracking-wide"
+              style={{ color }}
+            >
+              Zone {getZoneNumber(zoneScore)} · {zoneScore}%
+            </span>
+            <span className="font-aeonik text-sm sm:text-base text-white/60 text-center" style={{ fontFamily: 'Aeonik, sans-serif' }}>
+              {status}
+            </span>
           </div>
         </div>
 
         {/* Health Stats */}
         <div className="pb-6">
-          <p className="text-lg font-bold text-white px-4 sm:px-6 mb-3">Health Stats</p>
+          <p className="font-righteous text-lg font-bold tracking-widest px-4 sm:px-6 mb-3" style={{ color: '#FFBB00' }}>HEALTH STATS</p>
           <div className="flex overflow-x-auto gap-3 px-4 sm:px-6 pb-1 scrollbar-none">
             {HEALTH_STATS.map((stat) => (
               <div
@@ -229,12 +270,12 @@ export default function Dashboard() {
                     />
                   </svg>
                   <div className="absolute inset-0 flex flex-col items-center justify-center">
-                    <span className="text-sm font-extrabold text-white/70 leading-none">{stat.value}</span>
-                    <span className="text-[10px] text-white/30 leading-none mt-0.5">{stat.unit}</span>
+                    <span className="font-aeonik text-sm font-extrabold text-white/70 leading-none" style={{ fontFamily: 'Aeonik, sans-serif' }}>{stat.value}</span>
+                    <span className="font-aeonik text-[10px] text-white/30 leading-none mt-0.5" style={{ fontFamily: 'Aeonik, sans-serif' }}>{stat.unit}</span>
                   </div>
                 </div>
-                <span className="text-xs font-medium text-white/60 text-center">{stat.label}</span>
-                <span className="text-xs text-white/40">{stat.status}</span>
+                <span className="font-aeonik text-xs font-medium text-white/60 text-center" style={{ fontFamily: 'Aeonik, sans-serif' }}>{stat.label}</span>
+                <span className="font-aeonik text-xs text-white/40" style={{ fontFamily: 'Aeonik, sans-serif' }}>{stat.status}</span>
               </div>
             ))}
           </div>
