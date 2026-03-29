@@ -161,13 +161,13 @@ export default function Dashboard() {
         </div>
       </div>
 
-      {/* Date Header */}
-      <p className="font-aeonik px-4 sm:px-6 pt-1 pb-3 text-sm sm:text-base text-white/50 font-medium" style={{ fontFamily: 'Aeonik, sans-serif' }}>
-        {getDateHeader()}
-      </p>
-
       {/* Main content */}
       <div className="flex-1 overflow-y-auto scrollbar-none flex flex-col pb-4">
+
+        {/* Date Header */}
+        <p className="font-aeonik px-4 sm:px-6 pt-1 pb-3 text-sm sm:text-base text-white/50 font-medium" style={{ fontFamily: 'Aeonik, sans-serif' }}>
+          {getDateHeader()}
+        </p>
 
         {/* Zone Gauge section */}
         <div className="flex flex-col items-center px-4 sm:px-6 pt-2 pb-6">
