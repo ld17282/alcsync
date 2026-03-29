@@ -10,14 +10,50 @@ const ZONE_MAX_BAC = 0.08
 const MINI_RADIUS = 32
 const MINI_CIRCUMFERENCE = 2 * Math.PI * MINI_RADIUS
 
-const HEALTH_STATS = [
-  { label: "Heart Rate",       value: "80",    unit: "bpm", status: "Healthy"     },
-  { label: "HRV",              value: "116",   unit: "ms",  status: "Healthy"     },
-  { label: "SpO2",             value: "98",    unit: "%",   status: "Normal"      },
-  { label: "Skin Temp",        value: "98.9",  unit: "°F",  status: "Normal"      },
-  { label: "Resp. Rate",       value: "16",    unit: "rpm", status: "Normal"      },
-  { label: "Motion",           value: "Low",   unit: "act", status: "Resting"     },
-]
+function lerpVal(a: number, b: number, t: number): number {
+  return a + (b - a) * Math.min(Math.max(t, 0), 1)
+}
+
+type HealthStat = { label: string; value: string; unit: string; status: string; color: string }
+
+function statColor(val: number, thresholds: [number, string][]): string {
+  for (const [limit, color] of thresholds) if (val <= limit) return color
+  return thresholds[thresholds.length - 1][1]
+}
+
+function statusLabel(color: string, defaultGreen = "Healthy", defaultYellow = "Elevated"): string {
+  if (color === "#22c55e") return defaultGreen
+  if (color === "#eab308") return defaultYellow
+  if (color === "#f97316") return "Concerning"
+  return "Dangerous"
+}
+
+function computeHealthStats(score: number): HealthStat[] {
+  const t = score / 150
+
+  const hr = Math.round(lerpVal(68, 125, t))
+  const hrColor = hr <= 90 ? "#22c55e" : hr <= 110 ? "#eab308" : hr <= 130 ? "#f97316" : "#ef4444"
+
+  const hrv = Math.round(lerpVal(95, 28, t))
+  const hrvColor = hrv >= 80 ? "#22c55e" : hrv >= 50 ? "#eab308" : hrv >= 30 ? "#f97316" : "#ef4444"
+
+  const spo2 = Math.round(lerpVal(99, 92, t))
+  const spo2Color = spo2 >= 97 ? "#22c55e" : spo2 >= 94 ? "#eab308" : spo2 >= 91 ? "#f97316" : "#ef4444"
+
+  const tempNum = Math.round(lerpVal(981, 1018, t)) / 10
+  const tempColor = statColor(tempNum, [[98.99, "#22c55e"], [100.49, "#eab308"], [101.99, "#f97316"], [999, "#ef4444"]])
+
+  const rr = Math.round(lerpVal(13, 26, t))
+  const rrColor = rr <= 18 ? "#22c55e" : rr <= 22 ? "#eab308" : rr <= 26 ? "#f97316" : "#ef4444"
+
+  return [
+    { label: "Heart Rate", value: String(hr),       unit: "bpm", status: statusLabel(hrColor),             color: hrColor    },
+    { label: "HRV",        value: String(hrv),       unit: "ms",  status: statusLabel(hrvColor, "Healthy", "Declining"),           color: hrvColor   },
+    { label: "Blood O₂",   value: String(spo2),      unit: "%",   status: statusLabel(spo2Color, "Normal", "Declining"),           color: spo2Color },
+    { label: "Temp",       value: String(tempNum),   unit: "°F",  status: statusLabel(tempColor, "Normal"),  color: tempColor },
+    { label: "Breathing",  value: String(rr),        unit: "rpm", status: statusLabel(rrColor, "Normal"),    color: rrColor   },
+  ]
+}
 
 function getBacColor(bac: number): string {
   if (bac <= 0.04) return "#22c55e"
@@ -251,7 +287,7 @@ export default function Dashboard() {
         <div className="pb-6">
           <p className="font-righteous text-lg font-bold tracking-widest px-4 sm:px-6 mb-3" style={{ color: '#FFBB00' }}>HEALTH STATS</p>
           <div className="flex overflow-x-auto gap-3 px-4 sm:px-6 pb-1 scrollbar-none">
-            {HEALTH_STATS.map((stat) => (
+            {computeHealthStats(zoneScore).map((stat) => (
               <div
                 key={stat.label}
                 className="flex-shrink-0 rounded-2xl bg-white/5 backdrop-blur-sm p-4 flex flex-col items-center gap-2 min-w-[120px] border border-white/10 shadow-lg"
@@ -262,16 +298,20 @@ export default function Dashboard() {
                     <circle cx="40" cy="40" r={MINI_RADIUS} fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth="7" strokeLinecap="round" />
                     <circle
                       cx="40" cy="40" r={MINI_RADIUS}
-                      fill="none" stroke="#FFBB00" strokeOpacity="0.6" strokeWidth="7"
+                      fill="none" stroke={stat.color} strokeOpacity="0.8" strokeWidth="7"
                       strokeLinecap="round"
                       strokeDasharray={MINI_CIRCUMFERENCE}
                       strokeDashoffset={0}
                       transform="rotate(-90, 40, 40)"
+                      style={{ transition: "stroke 0.4s ease" }}
                     />
                   </svg>
                   <div className="absolute inset-0 flex flex-col items-center justify-center">
-                    <span className="font-aeonik text-sm font-extrabold text-white/70 leading-none" style={{ fontFamily: 'Aeonik, sans-serif' }}>{stat.value}</span>
-                    <span className="font-aeonik text-[10px] text-white/30 leading-none mt-0.5" style={{ fontFamily: 'Aeonik, sans-serif' }}>{stat.unit}</span>
+                    {stat.value === "V.High"
+                      ? <AlertTriangle size={20} color={stat.color} strokeWidth={2} />
+                      : <span className="font-aeonik text-sm font-extrabold leading-none" style={{ fontFamily: 'Aeonik, sans-serif', color: stat.color }}>{stat.value}</span>
+                    }
+                    {stat.value !== "V.High" && <span className="font-aeonik text-[10px] text-white/30 leading-none" style={{ fontFamily: 'Aeonik, sans-serif', marginTop: '3px' }}>{stat.unit}</span>}
                   </div>
                 </div>
                 <span className="font-aeonik text-xs font-medium text-white/60 text-center" style={{ fontFamily: 'Aeonik, sans-serif' }}>{stat.label}</span>
