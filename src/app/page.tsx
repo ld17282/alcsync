@@ -359,9 +359,12 @@ export default function Dashboard() {
   const spikesFiredRef = useRef<{ spike1: boolean; spike2: boolean }>({ spike1: false, spike2: false })
   const spikeOffsetRef = useRef<number>(0)
 
-  // Buzz Locked state — triggers after Zone 4 alert dismissed and BAC exceeds 100%
+  // Buzz Locked state — triggers after Zone 4 alert dismissed and BAC exceeds 108%
   const [buzzLocked, setBuzzLocked] = useState(false)
+  const [buzzLockedFading, setBuzzLockedFading] = useState(false)
   const buzzLockedFiredRef = useRef(false)
+  const buzzLockedTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const stabilizationTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   // Simulation core — increment bac, check thresholds
   function tick(bacRef: React.MutableRefObject<number>) {
@@ -426,8 +429,12 @@ export default function Dashboard() {
     intervalRef.current = setInterval(() => tick(bacRef), 200)
   }
 
-  function simulateNight() {
-    if (simulating) return
+  function resetSimulation() {
+    // Cancel any pending timers
+    if (intervalRef.current) { clearInterval(intervalRef.current); intervalRef.current = null }
+    if (stabilizationTimerRef.current) { clearTimeout(stabilizationTimerRef.current); stabilizationTimerRef.current = null }
+    if (buzzLockedTimerRef.current) { clearTimeout(buzzLockedTimerRef.current); buzzLockedTimerRef.current = null }
+    // Reset all state to initial
     setBac(0)
     stepRef.current = 0
     alertsFiredRef.current = new Set()
@@ -435,6 +442,16 @@ export default function Dashboard() {
     spikeOffsetRef.current = 0
     buzzLockedFiredRef.current = false
     setBuzzLocked(false)
+    setBuzzLockedFading(false)
+    setActiveAlert(null)
+    setAlertLogs([])
+    setUnreadCount(0)
+    setSimulating(false)
+  }
+
+  function simulateNight() {
+    if (simulating) return
+    resetSimulation()
     setSimulating(true)
     const bacRef = { current: 0 }
     startInterval(bacRef)
@@ -466,23 +483,36 @@ export default function Dashboard() {
     setActiveAlert(null)
 
     // 8-second stabilization hold then resume
-    setTimeout(() => {
+    stabilizationTimerRef.current = setTimeout(() => {
+      stabilizationTimerRef.current = null
       const bacRef = { current: 0 }
       startInterval(bacRef)
     }, 8000)
   }
 
   useEffect(() => {
-    return () => { if (intervalRef.current) clearInterval(intervalRef.current) }
+    return () => {
+      if (intervalRef.current) clearInterval(intervalRef.current)
+      if (stabilizationTimerRef.current) clearTimeout(stabilizationTimerRef.current)
+      if (buzzLockedTimerRef.current) clearTimeout(buzzLockedTimerRef.current)
+    }
   }, [])
 
   useEffect(() => {
     if (buzzLocked) {
       document.body.style.overflow = 'hidden'
+      // Start 18-second auto-reset with 1s fade-out transition
+      buzzLockedTimerRef.current = setTimeout(() => {
+        setBuzzLockedFading(true)
+        setTimeout(() => {
+          resetSimulation()
+        }, 1000)
+      }, 18000)
     } else {
       document.body.style.overflow = ''
     }
     return () => { document.body.style.overflow = '' }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [buzzLocked])
 
   const deviceConnected = true
@@ -526,12 +556,11 @@ export default function Dashboard() {
         <Zone34Alert zoneColor="#ef4444" onDismiss={handleAlertDismiss} />
       </div>
 
-      {/* ── BUZZ LOCKED Overlay — permanent, non-dismissable ── */}
-      {buzzLocked && (
-        <div
-          className="fixed inset-0 z-50 flex flex-col items-center justify-center px-6 overflow-hidden"
-          style={{ animation: 'buzzPulse 1.5s ease-in-out infinite', touchAction: 'none' }}
-        >
+      {/* ── BUZZ LOCKED Overlay — always mounted, faded in/out ── */}
+      <div
+        className={`fixed inset-0 z-50 flex flex-col items-center justify-center px-6 overflow-hidden transition-opacity duration-1000 ${buzzLocked ? (buzzLockedFading ? "opacity-0" : "opacity-100") : "opacity-0 pointer-events-none"}`}
+        style={{ animation: buzzLocked && !buzzLockedFading ? 'buzzPulse 1.5s ease-in-out infinite' : undefined, touchAction: 'none', backgroundColor: '#ef4444' }}
+      >
           {/* Pulsing glow ring behind icon */}
           <div className="relative flex items-center justify-center mb-8">
             <div
@@ -585,8 +614,7 @@ export default function Dashboard() {
           >
             Emergency contacts
           </span>
-        </div>
-      )}
+      </div>
 
       {/* Top Bar */}
       <div className="flex items-center justify-between px-4 sm:px-6 pt-8 sm:pt-10 pb-4 border-b border-[#FFBB00]/30">
