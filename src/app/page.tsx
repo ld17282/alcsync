@@ -137,7 +137,7 @@ export default function Dashboard() {
   const dashOffset = CIRCUMFERENCE * (1 - Math.min(bac / ZONE_MAX_BAC, 1))
 
   return (
-    <div className="min-h-svh bg-[oklch(20.8%_0.042_265.755)] text-white flex flex-col w-full pb-24">
+    <div className="h-screen overflow-hidden bg-[oklch(20.8%_0.042_265.755)] text-white flex flex-col w-full">
       <style>{`
         @keyframes zoneAlert {
           0%, 100% { opacity: 0.3; }
@@ -167,7 +167,7 @@ export default function Dashboard() {
       </p>
 
       {/* Scrollable main content */}
-      <div className="flex flex-1 flex-col min-h-0 overflow-y-auto scrollbar-none">
+      <div className="flex flex-1 flex-col min-h-0 overflow-y-auto scrollbar-none pb-24">
 
         {/* Zone Gauge section */}
         <div className="flex flex-col items-center px-4 sm:px-6 pt-2 pb-6">
