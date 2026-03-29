@@ -327,7 +327,7 @@ export default function Dashboard() {
       <nav className="flex-none border-t border-[#FFBB00]/30 bg-[oklch(20.8%_0.042_265.755)]/95 backdrop-blur-sm">
         <div className="flex items-center justify-around py-3 sm:py-4" style={{ paddingBottom: 'calc(env(safe-area-inset-bottom) + 12px)' }}>
           <button className="flex flex-col items-center gap-1 transition-colors">
-            <img src="/assets/home - icon.svg" alt="home" className="h-6 w-6" loading="eager" fetchPriority="high" style={{ filter: 'brightness(0) saturate(100%) invert(75%) sepia(69%) saturate(600%) hue-rotate(358deg) brightness(103%) contrast(103%)' }} />
+            <img src="/assets/home-icon.svg" alt="home" className="h-6 w-6" loading="eager" fetchPriority="high" style={{ filter: 'brightness(0) saturate(100%) invert(75%) sepia(69%) saturate(600%) hue-rotate(358deg) brightness(103%) contrast(103%)' }} />
           </button>
           <button
             onClick={simulateNight}
@@ -337,12 +337,12 @@ export default function Dashboard() {
             <span className="rounded-full bg-white/5 border border-white/20 p-3 text-white/40">
               {simulating
                 ? <Loader2 className="w-5 h-5 sm:w-6 sm:h-6 animate-spin" />
-                : <img src="/assets/pictorial - mark - white.svg" alt="simulate" className="w-5 h-5 sm:w-6 sm:h-6" loading="eager" fetchPriority="high" />
+                : <img src="/assets/pictorial-mark-white.svg" alt="simulate" className="w-5 h-5 sm:w-6 sm:h-6" loading="eager" fetchPriority="high" />
               }
             </span>
           </button>
           <button className="flex flex-col items-center gap-1 transition-colors">
-            <img src="/assets/alert - icon.svg" alt="alerts" className="h-6 w-6" loading="eager" fetchPriority="high" style={{ filter: 'brightness(0) invert(1)', opacity: 0.3 }} />
+            <img src="/assets/alert-icon.svg" alt="alerts" className="h-6 w-6" loading="eager" fetchPriority="high" style={{ filter: 'brightness(0) invert(1)', opacity: 0.3 }} />
           </button>
         </div>
       </nav>
