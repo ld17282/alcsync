@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect, useRef } from "react"
-import { Home, Bell, Moon, Loader2, Smile, Meh, Frown, AlertTriangle } from "lucide-react"
+import { Home, Bell, Loader2, Smile, Meh, Frown, AlertTriangle } from "lucide-react"
 
 const RADIUS = 90
 const CIRCUMFERENCE = 2 * Math.PI * RADIUS
@@ -184,10 +184,10 @@ export default function Dashboard() {
       `}</style>
 
       {/* Top Bar */}
-      <div className="flex items-center justify-between px-4 sm:px-6 pt-8 sm:pt-10 pb-4 border-b border-white/10">
+      <div className="flex items-center justify-between px-4 sm:px-6 pt-8 sm:pt-10 pb-4 border-b border-[#FFBB00]/30">
         <img src="/assets/buzzd-logo.svg" alt="buzzd" className="h-5 w-auto sm:h-6 md:h-7" />
         <div
-          className="flex items-center gap-1.5 bg-white/5 backdrop-blur-sm border border-white/10 rounded-full px-3 sm:px-4 py-1 sm:py-2 cursor-pointer"
+          className="flex items-center gap-1.5 bg-white/5 backdrop-blur-sm border border-[#FFBB00]/30 rounded-full px-3 sm:px-4 py-1 sm:py-2 cursor-pointer"
           onClick={() => { setShowIntegrations(true); console.log("integrations") }}
         >
           <span className="size-2 rounded-full animate-pulse" style={{ backgroundColor: deviceConnected ? "#22c55e" : "#ef4444" }} />
@@ -201,13 +201,13 @@ export default function Dashboard() {
       <div className="flex-1 overflow-y-auto scrollbar-none flex flex-col pb-4">
 
         {/* Date Header */}
-        <p className="font-aeonik px-4 sm:px-6 pt-1 pb-3 text-sm sm:text-base text-white/50 font-medium" style={{ fontFamily: 'Aeonik, sans-serif' }}>
+        <p className="font-aeonik px-4 sm:px-6 pt-1 pb-3 text-sm sm:text-base font-medium" style={{ fontFamily: 'Aeonik, sans-serif', color: '#FFBB00' }}>
           {getDateHeader()}
         </p>
 
         {/* Zone Gauge section */}
         <div className="flex flex-col items-center px-4 sm:px-6 pt-2 pb-6">
-          <p className="font-righteous text-2xl sm:text-3xl font-bold tracking-widest uppercase text-center mb-8 sm:mb-10" style={{ color: '#FFBB00' }}>
+          <p className="font-righteous text-2xl sm:text-3xl font-bold tracking-widest uppercase text-center mb-8 sm:mb-10" style={{ color: '#ffffff' }}>
             Your Zone
           </p>
 
@@ -285,12 +285,12 @@ export default function Dashboard() {
 
         {/* Health Stats */}
         <div className="pb-6">
-          <p className="font-righteous text-lg font-bold tracking-widest px-4 sm:px-6 mb-3" style={{ color: '#FFBB00' }}>HEALTH STATS</p>
+          <p className="font-righteous text-lg font-bold tracking-widest px-4 sm:px-6 mb-3" style={{ color: '#ffffff' }}>HEALTH STATS</p>
           <div className="flex overflow-x-auto gap-3 px-4 sm:px-6 pb-1 scrollbar-none">
             {computeHealthStats(zoneScore).map((stat) => (
               <div
                 key={stat.label}
-                className="flex-shrink-0 rounded-2xl bg-white/5 backdrop-blur-sm p-4 flex flex-col items-center gap-2 min-w-[120px] border border-white/10 shadow-lg"
+                className="flex-shrink-0 rounded-2xl bg-white/5 backdrop-blur-sm p-4 flex flex-col items-center gap-2 min-w-[120px] border border-[#FFBB00]/30 shadow-lg"
               >
                 {/* Mini ring */}
                 <div className="relative inline-flex items-center justify-center">
@@ -324,7 +324,7 @@ export default function Dashboard() {
       </div>{/* end scrollable content */}
 
       {/* Bottom Nav */}
-      <nav className="flex-none border-t border-white/10 bg-[oklch(20.8%_0.042_265.755)]/95 backdrop-blur-sm">
+      <nav className="flex-none border-t border-[#FFBB00]/30 bg-[oklch(20.8%_0.042_265.755)]/95 backdrop-blur-sm">
         <div className="flex items-center justify-around py-3 sm:py-4" style={{ paddingBottom: 'calc(env(safe-area-inset-bottom) + 12px)' }}>
           <button className="flex flex-col items-center gap-1 transition-colors" style={{ color: "#FFBB00" }}>
             <Home className="w-5 h-5 sm:w-6 sm:h-6" />
@@ -337,7 +337,7 @@ export default function Dashboard() {
             <span className="rounded-full bg-white/5 border border-white/20 p-3 text-white/40">
               {simulating
                 ? <Loader2 className="w-5 h-5 sm:w-6 sm:h-6 animate-spin" />
-                : <Moon className="w-5 h-5 sm:w-6 sm:h-6" />
+                : <img src="/assets/pictorial - mark - white.svg" alt="simulate" className="w-5 h-5 sm:w-6 sm:h-6" />
               }
             </span>
           </button>

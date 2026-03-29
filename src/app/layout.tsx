@@ -33,6 +33,7 @@ export default function RootLayout({
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
         <meta name="mobile-web-app-capable" content="yes" />
         <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+        <link rel="preload" href="/assets/buzzd-logo.svg" as="image" type="image/svg+xml" />
       </head>
       <body className="min-h-screen bg-black m-0 p-0 font-righteous" suppressHydrationWarning>
         <div className="min-h-screen flex justify-center bg-black">
