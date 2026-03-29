@@ -483,13 +483,13 @@ export default function Dashboard() {
       `}</style>
 
       {/* ── Alert Overlays — always mounted, faded in/out to prevent flicker ── */}
-      <div className={`transition-opacity duration-200 ${activeAlert === 1 ? "opacity-100" : "opacity-0 pointer-events-none"}`}>
+      <div className={`transition-opacity duration-200 ${activeAlert === 1 ? "opacity-100" : "opacity-0 pointer-events-none"}`} style={{ touchAction: 'none' }}>
         <Zone12Alert zoneColor="#eab308" onDismiss={handleAlertDismiss} />
       </div>
-      <div className={`transition-opacity duration-200 ${activeAlert === 2 ? "opacity-100" : "opacity-0 pointer-events-none"}`}>
+      <div className={`transition-opacity duration-200 ${activeAlert === 2 ? "opacity-100" : "opacity-0 pointer-events-none"}`} style={{ touchAction: 'none' }}>
         <Zone23Alert zoneColor="#f97316" onDismiss={handleAlertDismiss} />
       </div>
-      <div className={`transition-opacity duration-200 ${activeAlert === 3 ? "opacity-100" : "opacity-0 pointer-events-none"}`}>
+      <div className={`transition-opacity duration-200 ${activeAlert === 3 ? "opacity-100" : "opacity-0 pointer-events-none"}`} style={{ touchAction: 'none' }}>
         <Zone34Alert zoneColor="#ef4444" onDismiss={handleAlertDismiss} />
       </div>
 
@@ -508,7 +508,7 @@ export default function Dashboard() {
       </div>
 
       {/* ── Home Tab Content ───────────────────────────────────────────────── */}
-      <div className={`flex-1 overflow-y-auto scrollbar-none flex flex-col pb-4 ${activeTab === "home" ? "flex" : "hidden"}`}>
+      <div className={`flex-1 scrollbar-none flex flex-col pb-4 ${activeTab === "home" ? "flex" : "hidden"} ${activeAlert !== null ? "overflow-hidden" : "overflow-y-auto"}`}>
 
         {/* Date Header */}
         <p className="font-aeonik px-4 sm:px-6 pt-1 pb-3 text-sm sm:text-base font-normal" style={{ fontFamily: 'Aeonik, sans-serif', color: '#ffffff' }}>
@@ -600,7 +600,7 @@ export default function Dashboard() {
       </div>
 
       {/* ── Alerts Tab Content ─────────────────────────────────────────────── */}
-      <div className={`flex-1 overflow-y-auto scrollbar-none flex flex-col pb-4 ${activeTab === "alerts" ? "flex" : "hidden"}`}>
+      <div className={`flex-1 scrollbar-none flex flex-col pb-4 ${activeTab === "alerts" ? "flex" : "hidden"} ${activeAlert !== null ? "overflow-hidden" : "overflow-y-auto"}`}>
         <p className="font-aeonik px-4 sm:px-6 pt-4 pb-3 text-sm sm:text-base font-normal" style={{ fontFamily: 'Aeonik, sans-serif', color: '#ffffff' }}>
           Alert History
         </p>
