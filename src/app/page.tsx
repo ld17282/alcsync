@@ -359,6 +359,10 @@ export default function Dashboard() {
   const spikesFiredRef = useRef<{ spike1: boolean; spike2: boolean }>({ spike1: false, spike2: false })
   const spikeOffsetRef = useRef<number>(0)
 
+  // Buzz Locked state — triggers after Zone 4 alert dismissed and BAC exceeds 100%
+  const [buzzLocked, setBuzzLocked] = useState(false)
+  const buzzLockedFiredRef = useRef(false)
+
   // Simulation core — increment bac, check thresholds
   function tick(bacRef: React.MutableRefObject<number>) {
     const endBac = 0.12
@@ -401,6 +405,16 @@ export default function Dashboard() {
       }
     }
 
+    // Buzz Locked: triggers after Zone 4 dismissed and score exceeds 100%
+    if (
+      !buzzLockedFiredRef.current &&
+      alertsFiredRef.current.has(100) &&
+      score > 108
+    ) {
+      buzzLockedFiredRef.current = true
+      setBuzzLocked(true)
+    }
+
     if (stepRef.current >= totalSteps) {
       clearInterval(intervalRef.current!)
       intervalRef.current = null
@@ -419,6 +433,8 @@ export default function Dashboard() {
     alertsFiredRef.current = new Set()
     spikesFiredRef.current = { spike1: false, spike2: false }
     spikeOffsetRef.current = 0
+    buzzLockedFiredRef.current = false
+    setBuzzLocked(false)
     setSimulating(true)
     const bacRef = { current: 0 }
     startInterval(bacRef)
@@ -460,6 +476,15 @@ export default function Dashboard() {
     return () => { if (intervalRef.current) clearInterval(intervalRef.current) }
   }, [])
 
+  useEffect(() => {
+    if (buzzLocked) {
+      document.body.style.overflow = 'hidden'
+    } else {
+      document.body.style.overflow = ''
+    }
+    return () => { document.body.style.overflow = '' }
+  }, [buzzLocked])
+
   const deviceConnected = true
   const [showIntegrations, setShowIntegrations] = useState(false)
   const color = getBacColor(bac)
@@ -478,6 +503,14 @@ export default function Dashboard() {
           0%, 100% { opacity: 0.3; }
           50%       { opacity: 1; }
         }
+        @keyframes buzzPulse {
+          0%, 100% { background-color: #ef4444; }
+          50%       { background-color: #dc2626; }
+        }
+        @keyframes buzzRingPulse {
+          0%, 100% { opacity: 0.3; transform: scale(1); }
+          50%       { opacity: 1;   transform: scale(1.08); }
+        }
         .scrollbar-none::-webkit-scrollbar { display: none; }
         .scrollbar-none { -ms-overflow-style: none; scrollbar-width: none; }
       `}</style>
@@ -492,6 +525,68 @@ export default function Dashboard() {
       <div className={`transition-opacity duration-200 ${activeAlert === 3 ? "opacity-100" : "opacity-0 pointer-events-none"}`} style={{ touchAction: 'none' }}>
         <Zone34Alert zoneColor="#ef4444" onDismiss={handleAlertDismiss} />
       </div>
+
+      {/* ── BUZZ LOCKED Overlay — permanent, non-dismissable ── */}
+      {buzzLocked && (
+        <div
+          className="fixed inset-0 z-50 flex flex-col items-center justify-center px-6 overflow-hidden"
+          style={{ animation: 'buzzPulse 1.5s ease-in-out infinite', touchAction: 'none' }}
+        >
+          {/* Pulsing glow ring behind icon */}
+          <div className="relative flex items-center justify-center mb-8">
+            <div
+              className="absolute rounded-full"
+              style={{
+                width: 140,
+                height: 140,
+                background: 'radial-gradient(circle, rgba(239,68,68,0.6) 0%, rgba(239,68,68,0) 70%)',
+                animation: 'buzzRingPulse 1.5s ease-in-out infinite',
+              }}
+            />
+            <div
+              className="absolute rounded-full border-2 border-white/40"
+              style={{
+                width: 112,
+                height: 112,
+                animation: 'buzzRingPulse 1.5s ease-in-out infinite',
+              }}
+            />
+            <AlertTriangle size={64} color="white" strokeWidth={1.5} style={{ animation: 'pulse 1.5s ease-in-out infinite' }} />
+          </div>
+
+          {/* Heading */}
+          <p
+            className="text-white text-4xl uppercase tracking-widest text-center"
+            style={{ fontFamily: 'Righteous, sans-serif', animation: 'pulse 1.5s ease-in-out infinite' }}
+          >
+            BUZZ LOCKED
+          </p>
+
+          {/* Subheading */}
+          <p
+            className="text-white text-lg mt-4 text-center"
+            style={{ fontFamily: 'Aeonik, sans-serif' }}
+          >
+            You&apos;ve exceeded your limit.
+          </p>
+
+          {/* Body */}
+          <p
+            className="text-white/80 text-base mt-2 text-center max-w-xs"
+            style={{ fontFamily: 'Aeonik, sans-serif' }}
+          >
+            The buzz cannot be disabled until your BAC returns to a safe zone.
+          </p>
+
+          {/* Emergency contacts */}
+          <span
+            className="mt-10 text-white/50 text-sm"
+            style={{ fontFamily: 'Aeonik, sans-serif' }}
+          >
+            Emergency contacts
+          </span>
+        </div>
+      )}
 
       {/* Top Bar */}
       <div className="flex items-center justify-between px-4 sm:px-6 pt-8 sm:pt-10 pb-4 border-b border-[#FFBB00]/30">
