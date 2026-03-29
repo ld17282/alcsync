@@ -137,7 +137,7 @@ export default function Dashboard() {
   const dashOffset = CIRCUMFERENCE * (1 - Math.min(bac / ZONE_MAX_BAC, 1))
 
   return (
-    <div className="h-screen overflow-hidden bg-[oklch(20.8%_0.042_265.755)] text-white flex flex-col w-full">
+    <div className="min-h-screen bg-[oklch(20.8%_0.042_265.755)] text-white flex flex-col w-full">
       <style>{`
         @keyframes zoneAlert {
           0%, 100% { opacity: 0.3; }
@@ -166,8 +166,8 @@ export default function Dashboard() {
         {getDateHeader()}
       </p>
 
-      {/* Scrollable main content */}
-      <div className="flex flex-1 flex-col min-h-0 overflow-y-auto scrollbar-none pb-24">
+      {/* Main content */}
+      <div className="flex flex-col pb-32">
 
         {/* Zone Gauge section */}
         <div className="flex flex-col items-center px-4 sm:px-6 pt-2 pb-6">
@@ -285,7 +285,7 @@ export default function Dashboard() {
 
       {/* Bottom Nav */}
       <nav className="fixed bottom-0 left-0 right-0 z-50 border-t border-white/10 bg-[oklch(20.8%_0.042_265.755)]/95 backdrop-blur-sm">
-        <div className="flex items-center justify-around py-3 sm:py-4 pb-7">
+        <div className="flex items-center justify-around py-3 sm:py-4" style={{ paddingBottom: 'calc(env(safe-area-inset-bottom) + 12px)' }}>
           <button className="flex flex-col items-center gap-1 transition-colors" style={{ color: "#FFBB00" }}>
             <Home className="w-5 h-5 sm:w-6 sm:h-6" />
           </button>
