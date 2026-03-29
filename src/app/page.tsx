@@ -148,7 +148,7 @@ export default function Dashboard() {
       `}</style>
 
       {/* Top Bar */}
-      <div className="flex items-center justify-between px-4 sm:px-6 pt-8 sm:pt-10 pb-4">
+      <div className="flex items-center justify-between px-4 sm:px-6 pt-8 sm:pt-10 pb-4 border-b border-white/10">
         <img src="/assets/buzzd-logo.svg" alt="buzzd" className="h-5 w-auto sm:h-6 md:h-7" />
         <div
           className="flex items-center gap-1.5 bg-white/5 backdrop-blur-sm border border-white/10 rounded-full px-3 sm:px-4 py-1 sm:py-2 cursor-pointer"
