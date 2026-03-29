@@ -342,6 +342,8 @@ function formatDate(iso: string): string {
 // ─── Main Dashboard ───────────────────────────────────────────────────────────
 export default function Dashboard() {
   const [activeTab, setActiveTab] = useState<"home" | "alerts">("home")
+  const activeTabRef = useRef<"home" | "alerts">("home")
+  const [unreadCount, setUnreadCount] = useState(0)
   const [bac, setBac] = useState(0)
   const [simulating, setSimulating] = useState(false)
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
@@ -434,6 +436,10 @@ export default function Dashboard() {
       actionsSelected: actions,
     }
     setAlertLogs(prev => [log, ...prev])
+
+    if (activeTabRef.current !== "alerts") {
+      setUnreadCount(prev => prev + 1)
+    }
 
     // Save to localStorage for the alerts page
     try {
@@ -655,7 +661,7 @@ export default function Dashboard() {
       {/* Bottom Nav */}
       <nav className="flex-none border-t border-[#FFBB00]/30 bg-[oklch(20.8%_0.042_265.755)]/95 backdrop-blur-sm">
         <div className="flex items-center justify-around py-3 sm:py-4" style={{ paddingBottom: 'calc(env(safe-area-inset-bottom) + 12px)' }}>
-          <button onClick={() => setActiveTab("home")} className="flex flex-col items-center gap-1 transition-colors">
+          <button onClick={() => { activeTabRef.current = "home"; setActiveTab("home") }} className="flex flex-col items-center gap-1 transition-colors">
             <svg width="24" height="24" viewBox="0 0 427 428" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="home">
               <path d="M212.433 0.00249199C213.308 -0.00450801 214.185 0.00323875 215.06 0.0257388C231.138 0.353239 246.92 4.41274 261.16 11.8842C274.93 19.1922 288.245 31.3315 300.418 41.3975L346.828 79.772L380.27 107.416C387.043 113.006 396.118 120.034 401.988 126.222C412.938 137.854 420.615 152.177 424.24 167.735C427.465 181.482 426.715 193.757 426.718 207.767V245.719L426.715 306.867C426.72 317.93 426.955 329.857 426.648 340.829C425.865 364.784 415.67 387.464 398.275 403.949C385.545 415.942 369.165 424.049 351.728 426.154C343.723 427.122 334.8 426.85 326.675 426.87C317.63 426.895 308.46 426.927 299.418 426.814C289.093 426.689 279.483 423.557 271.485 416.835C264.868 411.37 260.073 404.017 257.738 395.757C255.678 388.362 256.058 379.632 256.065 371.93L256.083 333.824C256.085 324.537 256.663 311.217 254.59 302.567C252.728 294.612 248.798 287.29 243.2 281.337C235.598 273.327 225.948 268.532 214.85 268.212C204.047 268.37 196.113 270.55 187.583 277.59C180.247 283.717 175.003 291.982 172.582 301.229C169.993 310.829 170.712 325.712 170.711 336.085L170.72 372.079C170.727 379.169 171.135 387.602 169.468 394.392C167.723 401.252 164.313 407.577 159.541 412.805C151.774 421.32 139.51 427.115 128.024 426.802C111.044 426.34 92.0044 427.989 75.2952 426.127C32.5494 421.367 0.437438 381.634 0.170938 339.417C0.103688 328.752 0.0724371 318.002 0.0716871 307.284L0.0674376 248.979V209.569C0.0676876 194.834 -0.686311 181.139 2.84194 166.731C6.59894 151.517 14.1957 137.521 24.9062 126.081C30.4272 120.213 39.3557 113.302 45.7682 108.013L78.1792 81.2145L125.723 41.9195C155.259 17.4877 171.82 1.30024 212.433 0.00249199Z" fill={activeTab === "home" ? "#FFBB00" : "rgba(255,255,255,0.3)"}/>
             </svg>
@@ -673,17 +679,17 @@ export default function Dashboard() {
             </span>
           </button>
           <button
-            onClick={() => setActiveTab("alerts")}
+            onClick={() => { activeTabRef.current = "alerts"; setActiveTab("alerts"); setUnreadCount(0) }}
             className="flex flex-col items-center gap-1 transition-colors relative cursor-pointer"
           >
             <svg width="24" height="24" viewBox="0 0 401 435" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="alerts"
-              style={{ opacity: activeTab === "alerts" ? 1 : alertLogs.length > 0 ? 0.8 : 0.3 }}>
+              style={{ opacity: activeTab === "alerts" ? 1 : unreadCount > 0 ? 0.8 : 0.3 }}>
               <path d="M192.307 0.174721C225.243 -1.33788 255.654 6.96801 283.111 25.2001C293.011 31.7759 302.594 40.9399 310.531 49.723C335.808 77.7329 350.335 114.599 350.726 152.341C350.919 171.07 350.071 187.519 356.825 205.378C362.459 220.288 371.57 232.061 379.854 245.513C383.424 251.309 386.615 256.822 390.85 262.235C405.3 284.263 404.476 315.605 387.382 335.863C371.434 354.759 353.231 358.188 330.442 363.322C300.868 370.141 270.801 374.612 240.525 376.701C229.986 377.387 219.433 377.827 208.873 378.023C163.45 378.651 118.11 373.945 73.7838 364C56.3134 360.117 34.9807 356.094 21.4698 344.027C8.36351 332.322 1.48078 319.662 0.202851 301.85C-0.861005 287.019 2.22782 274.417 10.2232 261.899C11.9472 259.054 14.6723 256.42 16.2848 253.547C25.721 236.726 38.3003 222.038 44.6981 203.666C50.7052 186.416 50.1375 170.55 50.2413 152.605C50.489 109.682 69.3605 67.6813 101.15 38.8798C103.781 36.4947 106.163 33.7631 109 31.5652C133.75 12.3887 161.209 2.23516 192.307 0.174721Z" fill={activeTab === "alerts" ? "#FFBB00" : "rgba(255,255,255,1)"}/>
               <path d="M119.537 395.602C122.868 395.362 130.905 396.666 134.523 397.114C176.201 402.259 218.14 402.731 259.868 397.808C262.671 397.477 280.196 395.365 281.382 395.774L281.52 396.191C279.296 397.761 277.818 400.332 275.956 402.296C272.418 406.027 268.968 409.628 264.791 412.639C249.612 425.638 229.524 432.446 209.84 434.31C182.126 436.939 154.516 428.318 133.222 410.381C130.309 407.941 127.567 405.125 124.965 402.356C123.118 400.389 121.608 397.748 119.473 396.124L119.537 395.602Z" fill={activeTab === "alerts" ? "#FFBB00" : "rgba(255,255,255,1)"}/>
             </svg>
-            {alertLogs.length > 0 && activeTab !== "alerts" && (
+            {unreadCount > 0 && (
               <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-[#ef4444] flex items-center justify-center text-[9px] font-bold text-white">
-                {alertLogs.length}
+                {unreadCount}
               </span>
             )}
           </button>
