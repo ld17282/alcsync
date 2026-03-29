@@ -13,7 +13,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "AlcSync",
+  title: "Buzzd",
   description: "Real-time BAC monitoring from your wearable",
 };
 
@@ -25,9 +25,9 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} min-h-screen bg-black antialiased`}
+      className={`${geistSans.variable} ${geistMono.variable} min-h-screen bg-[oklch(20.8%_0.042_265.755)] antialiased`}
     >
-      <body className="min-h-screen bg-black m-0 p-0 flex flex-col">{children}</body>
+      <body className="min-h-screen bg-[oklch(20.8%_0.042_265.755)] m-0 p-0 flex flex-col">{children}</body>
     </html>
   );
 }
