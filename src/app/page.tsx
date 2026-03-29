@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect, useRef } from "react"
-import { Home, Bell, Loader2, Smile, Meh, Frown, AlertTriangle } from "lucide-react"
+import { Loader2, Smile, Meh, Frown, AlertTriangle } from "lucide-react"
 
 const RADIUS = 90
 const CIRCUMFERENCE = 2 * Math.PI * RADIUS
@@ -326,8 +326,8 @@ export default function Dashboard() {
       {/* Bottom Nav */}
       <nav className="flex-none border-t border-[#FFBB00]/30 bg-[oklch(20.8%_0.042_265.755)]/95 backdrop-blur-sm">
         <div className="flex items-center justify-around py-3 sm:py-4" style={{ paddingBottom: 'calc(env(safe-area-inset-bottom) + 12px)' }}>
-          <button className="flex flex-col items-center gap-1 transition-colors" style={{ color: "#FFBB00" }}>
-            <Home className="w-5 h-5 sm:w-6 sm:h-6" />
+          <button className="flex flex-col items-center gap-1 transition-colors">
+            <img src="/assets/home - icon.svg" alt="home" className="h-6 w-6" style={{ filter: 'brightness(0) saturate(100%) invert(75%) sepia(69%) saturate(600%) hue-rotate(358deg) brightness(103%) contrast(103%)' }} />
           </button>
           <button
             onClick={simulateNight}
@@ -341,8 +341,8 @@ export default function Dashboard() {
               }
             </span>
           </button>
-          <button className="flex flex-col items-center gap-1 text-white/30 hover:text-white/60 transition-colors">
-            <Bell className="w-5 h-5 sm:w-6 sm:h-6" />
+          <button className="flex flex-col items-center gap-1 transition-colors">
+            <img src="/assets/alert - icon.svg" alt="alerts" className="h-6 w-6" style={{ filter: 'brightness(0) invert(1)', opacity: 0.3 }} />
           </button>
         </div>
       </nav>
