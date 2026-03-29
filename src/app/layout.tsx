@@ -27,7 +27,13 @@ export default function RootLayout({
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} min-h-screen bg-[oklch(20.8%_0.042_265.755)] antialiased`}
     >
-      <body className="min-h-screen bg-[oklch(20.8%_0.042_265.755)] m-0 p-0 flex flex-col font-righteous" suppressHydrationWarning>{children}</body>
+      <body className="min-h-screen bg-black m-0 p-0 font-righteous" suppressHydrationWarning>
+        <div className="min-h-screen flex justify-center bg-black">
+          <div className="w-full max-w-[430px] min-h-screen relative bg-[oklch(20.8%_0.042_265.755)]">
+            {children}
+          </div>
+        </div>
+      </body>
     </html>
   );
 }
